@@ -120,7 +120,6 @@ impl Default for Scope {
 #[derive(Clone)]
 pub struct CloudProfiler<S> {
     pub client: hyper::Client<S, hyper::body::Body>,
-    pub auth: Box<dyn client::GetToken>,
     _user_agent: String,
     _base_url: String,
     _root_url: String,
@@ -130,10 +129,9 @@ impl<'a, S> client::Hub for CloudProfiler<S> {}
 
 impl<'a, S> CloudProfiler<S> {
 
-    pub fn new<A: 'static + client::GetToken>(client: hyper::Client<S, hyper::body::Body>, auth: A) -> CloudProfiler<S> {
+    pub fn new(client: hyper::Client<S, hyper::body::Body>) -> CloudProfiler<S> {
         CloudProfiler {
             client,
-            auth: Box::new(auth),
             _user_agent: "google-api-rust-client/5.0.4".to_string(),
             _base_url: "https://cloudprofiler.googleapis.com/".to_string(),
             _root_url: "https://cloudprofiler.googleapis.com/".to_string(),
@@ -531,18 +529,6 @@ where
 
 
         loop {
-            let token = match self.hub.auth.get_token(&self._scopes.iter().map(String::as_str).collect::<Vec<_>>()[..]).await {
-                Ok(token) => token,
-                Err(e) => {
-                    match dlg.token(e) {
-                        Ok(token) => token,
-                        Err(e) => {
-                            dlg.finished(false);
-                            return Err(client::Error::MissingToken(e));
-                        }
-                    }
-                }
-            };
             request_value_reader.seek(io::SeekFrom::Start(0)).unwrap();
             let mut req_result = {
                 let client = &self.hub.client;
@@ -551,11 +537,6 @@ where
                     .method(hyper::Method::POST)
                     .uri(url.as_str())
                     .header(USER_AGENT, self.hub._user_agent.clone());
-
-                if let Some(token) = token.as_ref() {
-                    req_builder = req_builder.header(AUTHORIZATION, format!("Bearer {}", token));
-                }
-
 
                         let request = req_builder
                         .header(CONTENT_TYPE, json_mime_type.to_string())
@@ -823,18 +804,6 @@ where
 
 
         loop {
-            let token = match self.hub.auth.get_token(&self._scopes.iter().map(String::as_str).collect::<Vec<_>>()[..]).await {
-                Ok(token) => token,
-                Err(e) => {
-                    match dlg.token(e) {
-                        Ok(token) => token,
-                        Err(e) => {
-                            dlg.finished(false);
-                            return Err(client::Error::MissingToken(e));
-                        }
-                    }
-                }
-            };
             request_value_reader.seek(io::SeekFrom::Start(0)).unwrap();
             let mut req_result = {
                 let client = &self.hub.client;
@@ -843,11 +812,6 @@ where
                     .method(hyper::Method::POST)
                     .uri(url.as_str())
                     .header(USER_AGENT, self.hub._user_agent.clone());
-
-                if let Some(token) = token.as_ref() {
-                    req_builder = req_builder.header(AUTHORIZATION, format!("Bearer {}", token));
-                }
-
 
                         let request = req_builder
                         .header(CONTENT_TYPE, json_mime_type.to_string())
@@ -1107,18 +1071,6 @@ where
 
 
         loop {
-            let token = match self.hub.auth.get_token(&self._scopes.iter().map(String::as_str).collect::<Vec<_>>()[..]).await {
-                Ok(token) => token,
-                Err(e) => {
-                    match dlg.token(e) {
-                        Ok(token) => token,
-                        Err(e) => {
-                            dlg.finished(false);
-                            return Err(client::Error::MissingToken(e));
-                        }
-                    }
-                }
-            };
             let mut req_result = {
                 let client = &self.hub.client;
                 dlg.pre_request();
@@ -1126,11 +1078,6 @@ where
                     .method(hyper::Method::GET)
                     .uri(url.as_str())
                     .header(USER_AGENT, self.hub._user_agent.clone());
-
-                if let Some(token) = token.as_ref() {
-                    req_builder = req_builder.header(AUTHORIZATION, format!("Bearer {}", token));
-                }
-
 
                         let request = req_builder
                         .body(hyper::body::Body::empty());
@@ -1406,18 +1353,6 @@ where
 
 
         loop {
-            let token = match self.hub.auth.get_token(&self._scopes.iter().map(String::as_str).collect::<Vec<_>>()[..]).await {
-                Ok(token) => token,
-                Err(e) => {
-                    match dlg.token(e) {
-                        Ok(token) => token,
-                        Err(e) => {
-                            dlg.finished(false);
-                            return Err(client::Error::MissingToken(e));
-                        }
-                    }
-                }
-            };
             request_value_reader.seek(io::SeekFrom::Start(0)).unwrap();
             let mut req_result = {
                 let client = &self.hub.client;
@@ -1426,11 +1361,6 @@ where
                     .method(hyper::Method::PATCH)
                     .uri(url.as_str())
                     .header(USER_AGENT, self.hub._user_agent.clone());
-
-                if let Some(token) = token.as_ref() {
-                    req_builder = req_builder.header(AUTHORIZATION, format!("Bearer {}", token));
-                }
-
 
                         let request = req_builder
                         .header(CONTENT_TYPE, json_mime_type.to_string())
@@ -1591,5 +1521,3 @@ where
         self
     }
 }
-
-
